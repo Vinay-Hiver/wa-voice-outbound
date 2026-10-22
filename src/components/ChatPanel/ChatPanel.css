@@ -390,3 +390,38 @@
 .chat-composer__send:not(:disabled):hover {
   background: var(--primarySurfaceMildDark);
 }
+
+/* Awaiting customer reply after an outbound template (Figma 1332:27066) */
+.awaiting-reply {
+  padding: 2px;
+  background: white;
+  border: 1px solid var(--slateBorderLight);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.awaiting-reply__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border-radius: 6px;
+  background: var(--slateSurfaceWhite);
+}
+
+.awaiting-reply__title {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: var(--label-small-size);
+  line-height: var(--label-small-line-height);
+  font-weight: var(--label-small-weight);
+  color: var(--pastelLightBlueTextBody);
+}
+
+.awaiting-reply__body {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: var(--body-xsmall-size);
+  line-height: var(--body-xsmall-line-height);
+  color: var(--slateTextSubtle);
+}

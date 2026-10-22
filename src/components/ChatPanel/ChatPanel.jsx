@@ -16,6 +16,7 @@ import whatsappTemplatesUrl from '../../icons/whatsapp-templates.svg';
 import TemplateModal from '../TemplateModal/TemplateModal';
 import TemplatePickerPopover from '../TemplateModal/TemplatePickerPopover';
 import TemplatePreviewCard from '../TemplateModal/TemplatePreview';
+import { sendTemplateInConversation } from '../../data/channelChats';
 import './ChatPanel.css';
 
 // Must match .template-picker-popover's CSS height.
@@ -135,7 +136,25 @@ function TwentyFourHourBlock({ onChooseTemplate }) {
   );
 }
 
-export default function ChatPanel({ channel = 'whatsapp', conversation }) {
+// Shown instead of the composer after an outbound template: WhatsApp only lets
+// the agent message again once the customer replies (Figma 1332:27066 layout).
+function AwaitingReplyNotice({ name, phone }) {
+  // "Ella (+1 310-555-0127)" for a saved contact, just the number otherwise.
+  const who = name && name !== phone ? `${name} (${phone})` : phone;
+  return (
+    <div className="awaiting-reply">
+      <div className="awaiting-reply__inner">
+        <p className="awaiting-reply__title">You can reply once {who} responds</p>
+        <p className="awaiting-reply__body">
+          WhatsApp only allows a template to start a conversation. Their reply opens a 24-hour
+          window for free-form messages.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function ChatPanel({ channel = 'whatsapp', conversation, inboxName }) {
   const isWhatsApp = channel === 'whatsapp';
   const baseMessages = conversation?.messages || [];
   const [isBlocked, setIsBlocked] = useState(isWhatsApp && !!conversation?.blocked);
@@ -300,7 +319,18 @@ export default function ChatPanel({ channel = 'whatsapp', conversation }) {
 
       <div className="chat-panel__thread" ref={threadRef}>
         {baseMessages.map((m, i) =>
-          m.kind === 'incoming' ? (
+          m.kind === 'template' ? (
+            // Outbound template sent from the "New WhatsApp message" composer.
+            <div className="chat-message chat-message--outgoing" key={`base-${i}`}>
+              <TemplatePreviewCard template={m.template} values={m.values} />
+              <div className="chat-message__meta">
+                <span>{m.sender || 'Arnold'} (sent via template)</span>
+                <span className="chat-message__meta-dash">-</span>
+                <span>{m.time}</span>
+                <StatusTick status={m.status || 'read'} />
+              </div>
+            </div>
+          ) : m.kind === 'incoming' ? (
             <IncomingBubble key={`base-${i}`} text={m.text} time={m.time} />
           ) : (
             <OutgoingTextBubble
@@ -345,7 +375,9 @@ export default function ChatPanel({ channel = 'whatsapp', conversation }) {
 
       {conversation?.view !== 'Assigned to Bot' && (
         <div className="chat-panel__composer-wrap" ref={composerWrapRef}>
-          {isBlocked ? (
+          {isWhatsApp && conversation?.awaitingReply ? (
+            <AwaitingReplyNotice name={conversation.name} phone={conversation.phone} />
+          ) : isBlocked ? (
             <TwentyFourHourBlock onChooseTemplate={openTemplateModal} />
           ) : (
             <div className="chat-composer">
@@ -408,7 +440,10 @@ export default function ChatPanel({ channel = 'whatsapp', conversation }) {
           key={templateModalKey}
           open={isTemplateModalOpen}
           onClose={() => setIsTemplateModalOpen(false)}
-          onSend={handleSendTemplate}
+          onSend={(template, values) =>
+            sendTemplateInConversation(inboxName, conversation.id, template, values)
+          }
+          recipient={{ name: conversation?.name, phone: conversation?.phone }}
         />
       )}
     </div>

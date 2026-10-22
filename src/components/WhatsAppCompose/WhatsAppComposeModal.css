@@ -1,0 +1,577 @@
+/* New WhatsApp message — bottom-right composer (Figma 1322:18468) */
+
+.wa-compose {
+  position: fixed;
+  right: 80px;
+  bottom: 0;
+  /* Below the template modal overlay (z-index 100) so it gets dimmed too. */
+  z-index: 90;
+  width: 374px;
+  display: flex;
+  flex-direction: column;
+  background: var(--slateSurfaceSubtle);
+  border: 1px solid var(--slateBorderMild);
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 -4px 24px 0 rgba(0, 0, 0, 0.12);
+  font-family: var(--font-family);
+}
+
+.wa-compose--minimised .wa-compose__header {
+  cursor: pointer;
+}
+
+/* Header */
+.wa-compose__header {
+  display: flex;
+  align-items: center;
+  padding: 8px 7px;
+}
+
+.wa-compose__header-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.wa-compose__header-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 16px;
+  padding-right: 8px;
+}
+
+.wa-compose__header-title p {
+  margin: 0;
+  font-size: var(--body-small-size);
+  line-height: var(--body-small-line-height);
+  color: var(--slateTextBody);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wa-compose__header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.wa-compose__header-btn {
+  width: 28px;
+  height: 28px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.wa-compose__header-btn:hover {
+  background: var(--slateSurfaceSubtle100-hover);
+}
+
+.wa-compose__minimise-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Content */
+.wa-compose__content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--slateSurfaceWhite);
+}
+
+.wa-compose__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 46px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--slateBorderLight);
+}
+
+.wa-compose__label {
+  width: 40px;
+  flex-shrink: 0;
+  margin: 0;
+  font-size: var(--body-small-size);
+  line-height: var(--body-small-line-height);
+  color: var(--slateTextSubtle);
+}
+
+.wa-compose__from-wrap {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 0;
+}
+
+.wa-compose__from {
+  width: 100%;
+  border: none;
+  font-family: var(--font-family);
+  cursor: pointer;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--slateSurfaceSubtle100);
+  overflow: hidden;
+}
+
+.wa-compose__from p {
+  margin: 0;
+  font-size: var(--body-small-size);
+  line-height: var(--body-small-line-height);
+  color: var(--slateTextBody);
+  white-space: nowrap;
+}
+
+.wa-compose__to {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.wa-compose__to-input,
+.wa-compose__phone-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-family);
+  font-size: var(--body-small-size);
+  line-height: var(--body-small-line-height);
+  color: var(--slateTextBody);
+}
+
+.wa-compose__phone-input {
+  padding-left: 10px;
+  color: var(--slateTextTitle);
+}
+
+.wa-compose__to-input::placeholder,
+.wa-compose__phone-input::placeholder {
+  color: var(--slateTextDisabled);
+}
+
+.wa-compose__country-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.wa-compose__flag {
+  width: 16px;
+  font-size: 16px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.wa-compose__dial {
+  font-size: var(--body-small-size);
+  line-height: var(--body-small-line-height);
+  color: var(--slateTextTitle);
+}
+
+.wa-compose__to-contact {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--body-small-size);
+  line-height: var(--body-small-line-height);
+  color: var(--slateTextTitle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wa-compose__to-contact-name,
+.wa-compose__to-contact-number {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wa-compose__to-contact-number {
+  margin-left: -4px;
+  color: var(--slateTextSubtle);
+}
+
+.wa-compose__to-clear {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.wa-compose__to-clear:hover {
+  background: var(--slateSurfaceSubtle100-hover);
+}
+
+/* Body */
+.wa-compose__body {
+  height: 352px;
+  overflow: hidden;
+  background: var(--slateSurfaceWhite);
+}
+
+.wa-compose__empty {
+  height: 100%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+.wa-compose__empty-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 110px;
+  background: var(--slateSurfaceSlate150);
+}
+
+.wa-compose__empty-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+  width: 100%;
+}
+
+.wa-compose__empty-title {
+  margin: 0;
+  font-size: var(--label-medium-size);
+  line-height: var(--label-medium-line-height);
+  font-weight: var(--label-medium-weight);
+  color: var(--slateTextTitle);
+}
+
+.wa-compose__empty-subtitle {
+  margin: 0;
+  font-size: var(--body-small-size);
+  line-height: var(--body-small-line-height);
+  color: var(--slateTextSubtle);
+}
+
+.wa-compose__template-btn {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--primarySurfaceDefault);
+  font-family: var(--font-family);
+  font-size: var(--label-small-size);
+  line-height: var(--label-small-line-height);
+  font-weight: var(--label-small-weight);
+  color: var(--slateSurfaceWhite);
+  cursor: pointer;
+}
+
+.wa-compose__template-btn:hover {
+  background: var(--primarySurfaceMildDark);
+}
+
+/* Reply to an ongoing conversation (Figma 1332:26174) */
+.wa-compose__reply {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.wa-compose__reply-input {
+  flex: 1;
+  min-height: 100px;
+  padding: 16px;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: var(--font-family);
+  font-size: var(--body-small-size);
+  line-height: var(--body-small-line-height);
+  color: var(--slateTextBody);
+}
+
+.wa-compose__reply-input::placeholder {
+  color: var(--slateTextDisabled);
+}
+
+/* "/" template picker — opens to the left of the composer, bottom-aligned. */
+.wa-compose__slash-anchor {
+  position: absolute;
+  right: calc(100% + 8px);
+  bottom: 0;
+  width: 594px;
+  height: 532px;
+  max-height: calc(100vh - 16px);
+}
+
+.wa-compose__reply-banner {
+  padding: 12px;
+  background: var(--primarySurfaceSubtle);
+  font-size: var(--body-xsmall-size);
+  line-height: var(--body-xsmall-line-height);
+  color: var(--slateTextBody);
+  text-align: center;
+}
+
+.wa-compose__reply-footer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--slateBorderLight);
+}
+
+.wa-compose__reply-tools {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wa-compose__reply-tool {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  border: none;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+}
+
+.wa-compose__reply-tool:hover {
+  background: var(--slateSurfaceSubtle100-hover);
+}
+
+.wa-compose__send-btn {
+  height: 34px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--primarySurfaceDefault);
+  font-family: var(--font-family);
+  font-size: var(--label-small-size);
+  line-height: var(--label-small-line-height);
+  font-weight: var(--label-small-weight);
+  color: var(--slateSurfaceWhite);
+  cursor: pointer;
+}
+
+.wa-compose__send-btn:hover:not(:disabled) {
+  background: var(--primarySurfaceMildDark);
+}
+
+.wa-compose__send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* From sender menu — sits under the From row instead of the To row. */
+.wa-compose__dropdown.wa-compose__from-menu {
+  top: 46px;
+  z-index: 3;
+}
+
+.wa-compose__dropdown-item.selected {
+  background: var(--slateSurfaceSubtle100-hover);
+}
+
+/* Contact suggestions / "Send message to" dropdown */
+.wa-compose__dropdown {
+  position: absolute;
+  top: 92px;
+  left: 68px;
+  z-index: 2;
+  width: 291px;
+  padding: 4px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border: 0.5px solid var(--slateBorderLight);
+  border-radius: 8px;
+  filter: drop-shadow(0 8px 8px var(--slateTextCaption));
+  max-height: 248px;
+  overflow-y: auto;
+}
+
+.wa-compose__dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  background: var(--slateSurfaceWhite);
+  font-family: var(--font-family);
+  font-size: var(--body-small-size);
+  line-height: var(--body-small-line-height);
+  color: var(--slateTextBody);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.wa-compose__dropdown-item:hover {
+  background: var(--slateSurfaceSubtle100-hover);
+}
+
+.wa-compose__avatar {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 60px;
+  font-size: var(--label-xsmall-size);
+  line-height: var(--label-xsmall-line-height);
+  font-weight: var(--label-xsmall-weight);
+  color: var(--slateSurfaceWhite);
+}
+
+.wa-compose__avatar-online {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+}
+
+/* Country picker (Figma 1322:21283) */
+.wa-compose__country-picker {
+  position: absolute;
+  top: 92px;
+  left: -26px;
+  z-index: 2;
+  width: 286px;
+  height: 271px;
+  display: flex;
+  flex-direction: column;
+  background: var(--slateSurfaceWhite);
+  border: 0.5px solid var(--slateBorderLight);
+  border-radius: 8px;
+  filter: drop-shadow(0 8px 8px var(--slateTextCaption));
+  overflow: hidden;
+}
+
+.wa-compose__country-search {
+  position: relative;
+  padding: 8px 4px 8px;
+}
+
+.wa-compose__country-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.wa-compose__country-search input {
+  width: 100%;
+  height: 40.5px;
+  box-sizing: border-box;
+  padding: 8.75px 12px 8.75px 32px;
+  border: 1.5px solid var(--slateBorderLight);
+  border-radius: 6px;
+  outline: none;
+  font-family: var(--font-family);
+  font-size: var(--body-small-size);
+  color: var(--slateTextBody);
+}
+
+.wa-compose__country-search input::placeholder {
+  color: var(--slateTextDisabled);
+}
+
+.wa-compose__country-search input:focus {
+  border-color: var(--primarySurfaceDefault);
+}
+
+.wa-compose__country-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 4px 4px;
+}
+
+.wa-compose__country-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-family: var(--font-family);
+  font-size: var(--body-small-size);
+  line-height: var(--body-small-line-height);
+  text-align: left;
+  cursor: pointer;
+}
+
+.wa-compose__country-item:hover,
+.wa-compose__country-item.selected {
+  background: var(--slateSurfaceSubtle100-hover);
+}
+
+.wa-compose__country-item .wa-compose__flag {
+  line-height: 20px;
+  color: black;
+}
+
+.wa-compose__country-name {
+  color: var(--slateTextBody);
+  white-space: nowrap;
+}
+
+.wa-compose__country-dial {
+  color: var(--slateTextSubtle);
+}
+
+.wa-compose__country-empty {
+  margin: 0;
+  padding: 8px;
+  font-size: var(--body-small-size);
+  color: var(--slateTextSubtle);
+}

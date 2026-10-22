@@ -1,8 +1,9 @@
 import React from 'react';
 import AllViewsPanel from './AllViewsPanel';
+import WhatsAppComposeModal from './WhatsAppCompose/WhatsAppComposeModal';
 import { ViewTypeIcon, TeamFavRowIcon } from './viewIcons';
 import { INITIAL_VIEWS_BY_INBOX, MAX_FAVOURITES } from '../data/dummyViews';
-import { channelViewCount, channelInboxTotal, isCountedView } from '../data/channelChats';
+import { channelViewCount, channelInboxTotal, isCountedView, useChannelChatsVersion } from '../data/channelChats';
 
 // Icons
 import allMailIcon from '../assets/icons/all-mail.svg';
@@ -14,6 +15,11 @@ import tagsIcon from '../assets/icons/tags.svg';
 import searchIcon from '../assets/icons/search-icon.svg';
 import plusIcon from '../assets/icons/plus-icon.svg';
 import chevronDownSmall from '../assets/icons/s-chevron-down.svg';
+import newComposeIcon from '../assets/icons/new-compose.svg';
+import newTicketIcon from '../assets/icons/new-ticket.svg';
+import newSmsIcon from '../assets/icons/new-sms.svg';
+import newWhatsappIcon from '../assets/icons/new-whatsapp-outline.svg';
+import newVoiceIcon from '../assets/icons/new-voice.svg';
 
 import sChevronDown from '../assets/icons/Read/side-bar-chevron.svg';
 
@@ -139,12 +145,55 @@ const NestedGroup = ({ expanded, children }) => {
 const slugifyInbox = (name) => name.toLowerCase().replace(/\s+/g, '-');
 const INBOX_NAMES = Object.keys(INITIAL_VIEWS_BY_INBOX);
 
+// Options shown when clicking the [+] new-conversation button.
+const NEW_CONVO_OPTIONS = [
+  { key: 'email', label: 'Compose email', icon: newComposeIcon },
+  { key: 'ticket', label: 'Create ticket', icon: newTicketIcon },
+  { key: 'sms', label: 'Send SMS', icon: newSmsIcon },
+  { key: 'whatsapp', label: 'Send WhatsApp message', icon: newWhatsappIcon },
+  { key: 'call', label: 'Make a new call', icon: newVoiceIcon },
+];
+
 const MainSidebarPanel = ({ activeFilter, onFilterChange, activeRole, onOpenSearch }) => {
   const [expandedInboxes, setExpandedInboxes] = React.useState(
     INBOX_NAMES.reduce((acc, name, i) => ({ ...acc, [slugifyInbox(name)]: i === 0 }), {})
   );
 
   const [allViewsInbox, setAllViewsInbox] = React.useState(null);
+  const [newConvoOpen, setNewConvoOpen] = React.useState(false);
+  const newConvoRef = React.useRef(null);
+  const [waComposeOpen, setWaComposeOpen] = React.useState(false);
+  useChannelChatsVersion(); // refresh view counts after a WhatsApp send
+
+  // After the composer sends, jump to the view the conversation is in
+  // (Pending for templates, its existing view for replies).
+  const handleWhatsAppSent = (inbox, view) => {
+    setWaComposeOpen(false);
+    setAllViewsInbox(null);
+    setExpandedInboxes((prev) => ({ ...prev, [slugifyInbox(inbox)]: true }));
+    onFilterChange({ inbox, type: view });
+  };
+
+  const handleNewConvoOption = (key) => {
+    setNewConvoOpen(false);
+    if (key === 'whatsapp') setWaComposeOpen(true);
+  };
+
+  React.useEffect(() => {
+    if (!newConvoOpen) return undefined;
+    const handleClick = (e) => {
+      if (newConvoRef.current && !newConvoRef.current.contains(e.target)) setNewConvoOpen(false);
+    };
+    const handleKey = (e) => {
+      if (e.key === 'Escape') setNewConvoOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [newConvoOpen]);
 
   // Switching Admin/Agent always drops back to the home nav — e.g. an admin
   // pinning Team Favourites from within All Views, then flipping to Agent to
@@ -318,14 +367,45 @@ const MainSidebarPanel = ({ activeFilter, onFilterChange, activeRole, onOpenSear
             <button type="button" className="header-icon-btn" title="Search" onClick={onOpenSearch}>
               <img src={searchIcon} alt="" width="16" height="16" />
             </button>
-            <div className="new-convo-split-btn">
-              <button type="button" className="split-btn-main" title="New conversation">
-                <img src={plusIcon} alt="" width="16" height="16" />
-              </button>
-              <button type="button" className="split-btn-chevron" title="More options">
-                <img src={chevronDownSmall} alt="" width="14" height="14" />
-              </button>
+            <div className="new-convo-wrapper" ref={newConvoRef}>
+              <div className="new-convo-split-btn">
+                <button
+                  type="button"
+                  className={`split-btn-main ${newConvoOpen ? 'active' : ''}`}
+                  title="New conversation"
+                  aria-haspopup="menu"
+                  aria-expanded={newConvoOpen}
+                  onClick={() => setNewConvoOpen((o) => !o)}
+                >
+                  <img src={plusIcon} alt="" width="16" height="16" />
+                </button>
+                <button type="button" className="split-btn-chevron" title="More options">
+                  <img src={chevronDownSmall} alt="" width="14" height="14" />
+                </button>
+              </div>
+              {newConvoOpen && (
+                <div className="new-convo-menu" role="menu">
+                  {NEW_CONVO_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.key}
+                      type="button"
+                      role="menuitem"
+                      className="new-convo-menu-item"
+                      onClick={() => handleNewConvoOption(opt.key)}
+                    >
+                      <img src={opt.icon} alt="" width="16" height="16" />
+                      <span>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+            <WhatsAppComposeModal
+              open={waComposeOpen}
+              defaultInbox={activeFilter.inbox}
+              onClose={() => setWaComposeOpen(false)}
+              onSent={handleWhatsAppSent}
+            />
           </div>
         </div>
         <div className="search-container">

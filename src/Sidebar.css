@@ -246,6 +246,54 @@
   background-color: var(--slateSurfaceSubtle100-hover);
 }
 
+.new-convo-split-btn button.active {
+  background-color: var(--slateSurfaceSubtle100-hover);
+}
+
+.new-convo-wrapper {
+  position: relative;
+}
+
+.new-convo-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+  min-width: 192px;
+  background: white;
+  border: 1px solid #e2e2e2;
+  border-radius: 6px;
+  box-shadow: 0 6px 30px 0 rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.new-convo-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-family);
+  font-size: 14px;
+  line-height: normal;
+  color: var(--slateTextBody);
+  white-space: nowrap;
+  text-align: left;
+  cursor: pointer;
+}
+
+.new-convo-menu-item img {
+  flex-shrink: 0;
+}
+
+.new-convo-menu-item:hover {
+  background-color: var(--slateSurfaceSubtle100-hover);
+}
+
 .search-container {
   padding: 0 8px;
 }

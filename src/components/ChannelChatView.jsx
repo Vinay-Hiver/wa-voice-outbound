@@ -43,12 +43,13 @@ export default function ChannelChatView({ inboxName, viewType = 'Mine' }) {
       {isSlack ? (
         <SlackChatPanel key={selectedId} inboxName={inboxName} conversation={conversation} />
       ) : (
-        <ChatPanel key={selectedId} channel={channel} conversation={conversation} />
+        <ChatPanel key={selectedId} channel={channel} conversation={conversation} inboxName={inboxName} />
       )}
 
       <RightPanel
         inboxName={`${inboxName} Inbox`}
         channel={channel}
+        assignee={conversation?.assignee}
         contact={{
           name: conversation?.name || conversation?.title,
           email: conversation?.email,

@@ -6,7 +6,7 @@ import ConversationList from './components/ConversationList';
 import ConversationDetail from './components/ConversationDetail';
 import RightPanel from './components/RightPanel';
 import ChannelChatView from './components/ChannelChatView';
-import { CHANNEL_BY_INBOX } from './data/channelChats';
+import { CHANNEL_BY_INBOX, useChannelChatsVersion } from './data/channelChats';
 import SettingsPage from './pages/SettingsPage';
 import MySettingsPage from './pages/MySettingsPage';
 import { useState } from 'react';
@@ -1071,7 +1071,9 @@ const generateDummyConversations = (inbox, type) => {
 
 function App() {
   const [selectedId, setSelectedId] = useState('chat-01-unassigned-0');
-  const [activeFilter, setActiveFilter] = useState({ inbox: 'Chat 01', type: 'Unassigned' });
+  // Bumps when the WhatsApp composer sends a message, so the open view refreshes.
+  const channelChatsVersion = useChannelChatsVersion();
+  const [activeFilter, setActiveFilter] = useState({ inbox: 'WhatsApp 01', type: 'Unassigned' });
 
   // Prototype role — All Views pins Team Favourites as Admin. No toggle UI.
   const activeRole = 'Admin';
@@ -1125,7 +1127,7 @@ function App() {
               activeRole={activeRole}
             />
             {CHANNEL_BY_INBOX[activeFilter.inbox] ? (
-              <ChannelChatView key={`${activeFilter.inbox}|${activeFilter.type}`} inboxName={activeFilter.inbox} viewType={activeFilter.type} />
+              <ChannelChatView key={`${activeFilter.inbox}|${activeFilter.type}|${channelChatsVersion}`} inboxName={activeFilter.inbox} viewType={activeFilter.type} />
             ) : (
               <>
                 <ConversationList

@@ -2,7 +2,7 @@ import { CloseIcon } from '../icons/Icon';
 import TemplatePicker from './TemplatePicker';
 import './TemplateModal.css';
 
-export default function TemplateModal({ open, onClose, onSend }) {
+export default function TemplateModal({ open, onClose, onSend, recipient }) {
   if (!open) return null;
 
   return (
@@ -19,6 +19,16 @@ export default function TemplateModal({ open, onClose, onSend }) {
             Select a template on the left to preview and fill it. The customer sees it exactly as
             previewed.
           </p>
+          {recipient && (
+            <div className="template-modal__recipient">
+              <span className="template-modal__recipient-label">To</span>
+              <span className="template-modal__recipient-chip">
+                {recipient.flag && <span className="template-modal__recipient-flag">{recipient.flag}</span>}
+                {recipient.name && <span className="template-modal__recipient-name">{recipient.name}</span>}
+                <span className="template-modal__recipient-number">{recipient.phone}</span>
+              </span>
+            </div>
+          )}
         </div>
 
         <TemplatePicker onSend={onSend} onDone={onClose} />

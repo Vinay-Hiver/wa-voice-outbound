@@ -116,6 +116,48 @@
   color: var(--slateTextSubtle);
 }
 
+.template-modal__recipient {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* Full-width divider: bleed past the header's 16px side padding. */
+  margin: 12px -16px 0;
+  padding: 12px 16px 0;
+  border-top: 1px solid var(--slateBorderMild);
+  font-family: var(--font-family);
+  font-size: var(--body-small-size);
+  line-height: var(--body-small-line-height);
+}
+
+.template-modal__recipient-label {
+  color: var(--slateTextSubtle);
+}
+
+.template-modal__recipient-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--slateSurfaceSubtle100);
+  color: var(--slateTextBody);
+}
+
+.template-modal__recipient-flag {
+  font-size: 14px;
+  line-height: 16px;
+}
+
+.template-modal__recipient-name {
+  font-weight: var(--label-small-weight);
+  color: var(--slateTextTitle);
+}
+
+.template-modal__recipient-number {
+  color: var(--slateTextBody);
+}
+
 .template-modal__body {
   display: flex;
   flex: 1 1 0;

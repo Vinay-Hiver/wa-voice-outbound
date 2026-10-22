@@ -30,7 +30,7 @@ const makeInbox = (views, fav = ['mine'], channel = 'email') => ({
 });
 
 // Order shown in the sidebar: Chat, Slack, WhatsApp, then Email.
-export const INITIAL_VIEWS_BY_INBOX = {
+const ALL_VIEWS_BY_INBOX = {
   // ---- Chat inboxes ----
   'Chat 01': makeInbox([
     ...systemViews({ mine: 3, unassigned: 6, team: 8, tickets: 2, pending: 4, closed: 15 }),
@@ -101,5 +101,11 @@ export const INITIAL_VIEWS_BY_INBOX = {
     { id: 'custom-5', name: 'Chargebacks', type: 'custom', icon: 'layers', count: 1 },
   ], ['mine'], 'email'),
 };
+
+// This prototype only shows the WhatsApp inboxes.
+const PROTOTYPE_INBOXES = ['WhatsApp 01', 'WhatsApp 02'];
+export const INITIAL_VIEWS_BY_INBOX = Object.fromEntries(
+  PROTOTYPE_INBOXES.map((name) => [name, ALL_VIEWS_BY_INBOX[name]])
+);
 
 export const MAX_FAVOURITES = 5;

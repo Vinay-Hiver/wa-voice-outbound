@@ -81,7 +81,7 @@ function CheckBox({ checked, onChange }) {
 }
 
 const ASSIGNEES = [
-  { id: 'praveen', name: 'Praveen Borawar (Me)', color: '#d96d71' },
+  { id: 'vinaykumar', name: 'Vinaykumar (Me)', color: '#d96d71' },
   { id: 'akash', name: 'Akash M', color: '#e0b83a' },
   { id: 'ankita', name: 'Ankita T', color: '#9b7fd4' },
   { id: 'ashuthosh', name: 'Ashuthosh Dubey', color: '#7b8bd4' },
@@ -110,9 +110,9 @@ const CheckMark = () => (
   </svg>
 );
 
-function AssigneeField() {
+function AssigneeField({ defaultId = null }) {
   const [open, setOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState(null); // null => None
+  const [selectedId, setSelectedId] = useState(defaultId); // null => None
   const [query, setQuery] = useState('');
   const ctrlRef = useRef(null);
   const ddRef = useRef(null);
@@ -286,7 +286,7 @@ function SortableSection({ id, icon, title, defaultOpen = false, children }) {
   );
 }
 
-export default function RightPanel({ inboxName = 'Email Inbox Name', channel = 'email', contact = {} }) {
+export default function RightPanel({ inboxName = 'Email Inbox Name', channel = 'email', contact = {}, assignee = null }) {
   const contactName = contact.name;
   const contactEmail = contact.email;
   const contactPhone = contact.phone;
@@ -577,7 +577,7 @@ export default function RightPanel({ inboxName = 'Email Inbox Name', channel = '
       <div className="rp-header">
         <p className="rp-header__title">{inboxName}</p>
         <div className="rp-header__fields">
-          <AssigneeField />
+          <AssigneeField key={assignee || 'none'} defaultId={assignee} />
           <FieldRow
             icon={<Img src={statusIcon} size={14} />}
             label="Status"
