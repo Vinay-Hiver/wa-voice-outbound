@@ -2,12 +2,14 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import TemplateModal from '../TemplateModal/TemplateModal';
 import TemplatePickerPopover from '../TemplateModal/TemplatePickerPopover';
+import FromSelect from './FromSelect';
 import {
   WA_CONTACTS,
   COUNTRIES,
   DEFAULT_COUNTRY,
   FROM_SENDERS,
   hasOngoingConversation,
+  isUndeliverable,
   hasExpiredWindow,
   findExpiredConversation,
 } from './data';
@@ -21,7 +23,6 @@ import './WhatsAppComposeModal.css';
 import headerWhatsappIcon from '../../assets/icons/wa-compose/header-whatsapp.svg';
 import minimiseIcon from '../../assets/icons/wa-compose/minimise-glyph.svg';
 import closeIcon from '../../assets/icons/wa-compose/close.svg';
-import chevronDown14 from '../../assets/icons/wa-compose/chevron-down-14.svg';
 import chevronDown16 from '../../assets/icons/wa-compose/chevron-down-16.svg';
 import emptyWhatsappIcon from '../../assets/icons/wa-compose/empty-whatsapp.svg';
 import templateEmptyIcon from '../../assets/icons/wa-compose/template-empty.svg';
@@ -63,9 +64,10 @@ export default function WhatsAppComposeModal({ open, onClose, onSent, defaultInb
   const [countrySearch, setCountrySearch] = React.useState('');
   const [templateOpen, setTemplateOpen] = React.useState(false);
   const [message, setMessage] = React.useState('');
+  // The recipient a template just failed to reach; editing the number clears it.
+  const [failedFor, setFailedFor] = React.useState(null);
   const [slashPickerOpen, setSlashPickerOpen] = React.useState(false);
   const [fromInbox, setFromInbox] = React.useState(FROM_SENDERS[0].inbox);
-  const [fromOpen, setFromOpen] = React.useState(false);
 
   const modalRef = React.useRef(null);
   const toInputRef = React.useRef(null);
@@ -81,8 +83,8 @@ export default function WhatsAppComposeModal({ open, onClose, onSent, defaultInb
     setCountrySearch('');
     setTemplateOpen(false);
     setMessage('');
+    setFailedFor(null);
     setSlashPickerOpen(false);
-    setFromOpen(false);
     // Send from the inbox the agent is in, when it's a WhatsApp inbox.
     setFromInbox(
       FROM_SENDERS.some((f) => f.inbox === defaultInbox) ? defaultInbox : FROM_SENDERS[0].inbox
@@ -90,15 +92,6 @@ export default function WhatsAppComposeModal({ open, onClose, onSent, defaultInb
     requestAnimationFrame(() => toInputRef.current?.focus());
   }, [open]);
 
-  // Close the From dropdown on outside click.
-  React.useEffect(() => {
-    if (!fromOpen) return undefined;
-    const handle = (e) => {
-      if (!e.target.closest('.wa-compose__from-menu, .wa-compose__from')) setFromOpen(false);
-    };
-    document.addEventListener('mousedown', handle);
-    return () => document.removeEventListener('mousedown', handle);
-  }, [fromOpen]);
 
   // Close the country picker on outside click.
   React.useEffect(() => {
@@ -212,6 +205,14 @@ export default function WhatsAppComposeModal({ open, onClose, onSent, defaultInb
   };
 
   const sendTemplate = (template, values) => {
+    // Not delivered: close the template picker and show the error here.
+    // Nothing is added to Pending.
+    if (isUndeliverable(recipient.number)) {
+      setTemplateOpen(false);
+      setSlashPickerOpen(false);
+      setFailedFor(formatPhone(recipient));
+      return;
+    }
     // Ongoing conversation with a closed 24-hour window: the template goes
     // into that same conversation instead of starting a new one in Pending.
     const expired = findExpiredConversation(recipient.number, fromInbox);
@@ -250,8 +251,18 @@ export default function WhatsAppComposeModal({ open, onClose, onSent, defaultInb
   const ongoing = recipient && hasOngoingConversation(recipient.number, fromInbox);
   const windowExpired = recipient && !ongoing && hasExpiredWindow(recipient.number, fromInbox);
 
+  const deliveryFailed = recipient && failedFor === formatPhone(recipient);
+
   let body;
-  if (!recipient) {
+  if (deliveryFailed) {
+    body = (
+      <div className="wa-compose__error-wrap">
+        <div className="wa-compose__error" role="alert">
+          Message could not be delivered. Please try again.
+        </div>
+      </div>
+    );
+  } else if (!recipient) {
     body = (
       <div className="wa-compose__empty">
         <div className="wa-compose__empty-icon">
@@ -276,7 +287,6 @@ export default function WhatsAppComposeModal({ open, onClose, onSent, defaultInb
           onChange={handleMessageChange}
           onKeyDown={handleMessageKeyDown}
         />
-        <div className="wa-compose__reply-banner">Sent as a reply to an ongoing conversation</div>
         <div className="wa-compose__reply-footer">
           <div className="wa-compose__reply-tools">
             <button type="button" className="wa-compose__reply-tool" title="Emoji">
@@ -387,12 +397,11 @@ export default function WhatsAppComposeModal({ open, onClose, onSent, defaultInb
           <div className="wa-compose__content">
             <div className="wa-compose__row">
               <p className="wa-compose__label">From</p>
-              <div className="wa-compose__from-wrap">
-                <button type="button" className="wa-compose__from" onClick={() => setFromOpen((o) => !o)}>
-                  <p>{senderLabel(FROM_SENDERS.find((f) => f.inbox === fromInbox))}</p>
-                  <img src={chevronDown14} alt="" width="14" height="14" />
-                </button>
-              </div>
+              <FromSelect
+                options={FROM_SENDERS.map((f) => ({ value: f.inbox, label: senderLabel(f) }))}
+                value={fromInbox}
+                onChange={setFromInbox}
+              />
             </div>
 
             <div className="wa-compose__row">
@@ -457,23 +466,6 @@ export default function WhatsAppComposeModal({ open, onClose, onSent, defaultInb
 
             <div className="wa-compose__body">{body}</div>
 
-            {fromOpen && (
-              <div className="wa-compose__dropdown wa-compose__from-menu">
-                {FROM_SENDERS.map((f) => (
-                  <button
-                    key={f.inbox}
-                    type="button"
-                    className={`wa-compose__dropdown-item ${f.inbox === fromInbox ? 'selected' : ''}`}
-                    onClick={() => {
-                      setFromInbox(f.inbox);
-                      setFromOpen(false);
-                    }}
-                  >
-                    {senderLabel(f)}
-                  </button>
-                ))}
-              </div>
-            )}
 
             {showSuggestions && (
               // preventDefault on mousedown keeps focus in the To input while picking.

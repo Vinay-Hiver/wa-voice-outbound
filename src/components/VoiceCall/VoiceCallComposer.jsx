@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { ALL_CONTACTS, COUNTRIES, DEFAULT_COUNTRY } from '../WhatsAppCompose/data';
 import { HIVER_VOICE_INBOXES } from './data';
+import FromSelect from '../WhatsAppCompose/FromSelect';
 // Shares the bottom-right composer shell with the WhatsApp composer.
 import '../WhatsAppCompose/WhatsAppComposeModal.css';
 import './VoiceCall.css';
@@ -9,7 +10,6 @@ import './VoiceCall.css';
 import headerVoiceIcon from '../../assets/icons/voice-call/header-voice.svg';
 import minimiseIcon from '../../assets/icons/wa-compose/minimise-glyph.svg';
 import closeIcon from '../../assets/icons/voice-call/close.svg';
-import chevronDown14 from '../../assets/icons/voice-call/chevron-down-14.svg';
 import clearIcon from '../../assets/icons/voice-call/clear-14.svg';
 import emptyCallIcon from '../../assets/icons/voice-call/empty-call.svg';
 import rowCallIcon from '../../assets/icons/voice-call/row-call.svg';
@@ -32,7 +32,6 @@ const calleePhone = (callee) =>
 export default function VoiceCallComposer({ open, inbox, onClose, onCall }) {
   const [minimised, setMinimised] = React.useState(false);
   const [fromId, setFromId] = React.useState(inbox?.id);
-  const [fromOpen, setFromOpen] = React.useState(false);
   const [query, setQuery] = React.useState('');
   const [toFocused, setToFocused] = React.useState(false);
   const [callee, setCallee] = React.useState(null); // contact, or { typed, country, number }
@@ -45,7 +44,6 @@ export default function VoiceCallComposer({ open, inbox, onClose, onCall }) {
     if (!open) return;
     setMinimised(false);
     setFromId(inbox?.id || HIVER_VOICE_INBOXES[0].id);
-    setFromOpen(false);
     setQuery('');
     setCallee(null);
     setCountryOpen(false);
@@ -62,14 +60,6 @@ export default function VoiceCallComposer({ open, inbox, onClose, onCall }) {
     return () => document.removeEventListener('mousedown', handle);
   }, [countryOpen]);
 
-  React.useEffect(() => {
-    if (!fromOpen) return undefined;
-    const handle = (e) => {
-      if (!e.target.closest('.wa-compose__from-menu, .wa-compose__from')) setFromOpen(false);
-    };
-    document.addEventListener('mousedown', handle);
-    return () => document.removeEventListener('mousedown', handle);
-  }, [fromOpen]);
 
   if (!open) return null;
 
@@ -194,16 +184,12 @@ export default function VoiceCallComposer({ open, inbox, onClose, onCall }) {
         <div className="wa-compose__content">
           <div className="wa-compose__row">
             <p className="wa-compose__label">From</p>
-            <div className="wa-compose__from-wrap">
-              <button
-                type="button"
-                className="wa-compose__from voice-call__from"
-                onClick={() => setFromOpen((o) => !o)}
-              >
-                <p>{senderLabel(fromInbox)}</p>
-                <img src={chevronDown14} alt="" width="14" height="14" />
-              </button>
-            </div>
+            <FromSelect
+              className="voice-call__from"
+              options={HIVER_VOICE_INBOXES.map((i) => ({ value: i.id, label: senderLabel(i) }))}
+              value={fromInbox.id}
+              onChange={setFromId}
+            />
           </div>
 
           <div className="wa-compose__row">
@@ -265,7 +251,7 @@ export default function VoiceCallComposer({ open, inbox, onClose, onCall }) {
               <div className="voice-call__callee">
                 <div className="voice-call__callee-info">
                   {callee.name ? (
-                    <span className="wa-compose__avatar" style={{ background: callee.color }}>
+                    <span className="wa-compose__avatar voice-call__callee-avatar" style={{ background: callee.color }}>
                       {callee.name[0]}
                       <img className="wa-compose__avatar-online" src={onlineDot} alt="" width="8" height="8" />
                     </span>
@@ -331,23 +317,6 @@ export default function VoiceCallComposer({ open, inbox, onClose, onCall }) {
             </div>
           )}
 
-          {fromOpen && (
-            <div className="wa-compose__dropdown wa-compose__from-menu">
-              {HIVER_VOICE_INBOXES.map((i) => (
-                <button
-                  key={i.id}
-                  type="button"
-                  className={`wa-compose__dropdown-item ${i.id === fromInbox.id ? 'selected' : ''}`}
-                  onClick={() => {
-                    setFromId(i.id);
-                    setFromOpen(false);
-                  }}
-                >
-                  {senderLabel(i)}
-                </button>
-              ))}
-            </div>
-          )}
 
           {showSuggestions && (
             <div className="wa-compose__dropdown voice-call__dropdown" onMouseDown={(e) => e.preventDefault()}>

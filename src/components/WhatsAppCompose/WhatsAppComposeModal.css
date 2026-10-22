@@ -111,20 +111,22 @@
 }
 
 .wa-compose__from-wrap {
+  position: relative;
   flex: 1;
   min-width: 0;
   padding: 4px 0;
 }
 
 .wa-compose__from {
-  width: 100%;
+  /* Hugs its label instead of filling the row. */
+  max-width: 100%;
+  gap: 8px;
   border: none;
   font-family: var(--font-family);
   cursor: pointer;
-  height: 24px;
-  display: flex;
+  height: 26px;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
   padding: 2px 6px;
   border-radius: 4px;
   background: var(--slateSurfaceSubtle100);
@@ -336,23 +338,14 @@
   color: var(--slateTextDisabled);
 }
 
-/* "/" template picker — opens to the left of the composer, bottom-aligned. */
+/* "/" template picker — opens to the left of the composer, 80px above the screen bottom. */
 .wa-compose__slash-anchor {
   position: absolute;
   right: calc(100% + 8px);
-  bottom: 0;
+  bottom: 80px;
   width: 594px;
   height: 532px;
-  max-height: calc(100vh - 16px);
-}
-
-.wa-compose__reply-banner {
-  padding: 12px;
-  background: var(--primarySurfaceSubtle);
-  font-size: var(--body-xsmall-size);
-  line-height: var(--body-xsmall-line-height);
-  color: var(--slateTextBody);
-  text-align: center;
+  max-height: calc(100vh - 96px);
 }
 
 .wa-compose__reply-footer {
@@ -407,14 +400,78 @@
   cursor: not-allowed;
 }
 
-/* From sender menu — sits under the From row instead of the To row. */
-.wa-compose__dropdown.wa-compose__from-menu {
-  top: 46px;
-  z-index: 3;
-}
-
 .wa-compose__dropdown-item.selected {
   background: var(--slateSurfaceSubtle100-hover);
+}
+
+/* From dropdown menu — 4px below the pill, selected option bold with a tick */
+.wa-compose__from-chevron {
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.wa-compose__from-chevron.open {
+  transform: rotate(180deg);
+}
+
+.wa-compose__from-menu {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  z-index: 3;
+  min-width: 100%;
+  width: max-content;
+  max-width: 300px;
+  padding: 4px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: var(--slateSurfaceWhite);
+  border: 1px solid var(--slateBorderLight);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.wa-compose__from-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-family: var(--font-family);
+  font-size: var(--body-small-size);
+  line-height: var(--body-small-line-height);
+  color: var(--slateTextBody);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.wa-compose__from-option:hover {
+  background: var(--slateSurfaceSubtle100-hover);
+}
+
+.wa-compose__from-option.selected {
+  font-weight: var(--label-small-weight);
+  color: var(--slateTextTitle);
+}
+
+/* Delivery error (Figma 1322:18340) */
+.wa-compose__error-wrap {
+  padding: 16px;
+}
+
+.wa-compose__error {
+  padding: 12px;
+  border: 0.5px solid #f19192;
+  border-radius: 8px;
+  background: #fce4e4;
+  font-size: var(--body-xsmall-size);
+  line-height: var(--body-xsmall-line-height);
+  color: var(--slateTextBody);
 }
 
 /* Contact suggestions / "Send message to" dropdown */

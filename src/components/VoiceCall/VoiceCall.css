@@ -247,6 +247,19 @@
   gap: 2px;
 }
 
+/* Larger avatar for the selected callee (list avatars stay 24px). */
+.wa-compose__avatar.voice-call__callee-avatar {
+  width: 32px;
+  height: 32px;
+  font-size: var(--label-small-size);
+  line-height: var(--label-small-line-height);
+}
+
+.voice-call__callee-avatar .wa-compose__avatar-online {
+  left: 24px;
+  top: 24px;
+}
+
 .voice-call__unknown-icon {
   margin-bottom: 12px;
 }

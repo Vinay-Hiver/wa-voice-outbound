@@ -68,6 +68,11 @@ export const COUNTRIES = [
 
 export const DEFAULT_COUNTRY = COUNTRIES.find((c) => c.name === 'United States');
 
+// Prototype rule: Meta only reports a generic "not delivered" error (it can't
+// tell us a number isn't on WhatsApp). Templates sent to these numbers fail.
+const UNDELIVERABLE_NUMBERS = new Set(['987654321']);
+export const isUndeliverable = (number) => UNDELIVERABLE_NUMBERS.has(number.replace(/\D/g, ''));
+
 // A number has an ongoing conversation in `inbox` when it has an open (not
 // Closed) conversation there whose 24-hour window is still open. Those skip
 // the template step and reply in that thread.
