@@ -171,6 +171,7 @@
 }
 
 .wa-compose__country-btn {
+  font-family: var(--font-family); /* buttons don't inherit the page font */
   display: flex;
   align-items: center;
   gap: 8px;
