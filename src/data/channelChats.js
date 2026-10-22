@@ -137,7 +137,6 @@ export const addPendingMessage = (inbox, { name, phone, color }, message) => {
     convo.messages = [...convo.messages, msg];
     convo.preview = preview;
     convo.date = 'Now';
-    if (message.kind === 'template') convo.awaitingReply = true;
   } else {
     const title = name || phone;
     convo = {
@@ -152,8 +151,9 @@ export const addPendingMessage = (inbox, { name, phone, color }, message) => {
       channel: 'support',
       date: 'Now',
       preview,
-      // After an outbound template the agent can't message again until the customer replies.
-      awaitingReply: message.kind === 'template',
+      // A template-started conversation can't take free-form replies until the
+      // customer responds (24-hour window); more templates are allowed.
+      blocked: message.kind === 'template',
       // The agent who starts an outbound conversation owns it.
       assignee: CURRENT_USER.id,
       messages: [msg],
@@ -173,7 +173,7 @@ export const addPendingMessage = (inbox, { name, phone, color }, message) => {
 export const addReplyToConversation = (inbox, phone, text) => {
   const list = CHANNEL_CHATS[inbox];
   const digits = phone.replace(/\D/g, '');
-  const convo = list?.find((c) => c.view !== 'Closed' && !c.awaitingReply && c.phone.replace(/\D/g, '') === digits);
+  const convo = list?.find((c) => c.view !== 'Closed' && c.phone.replace(/\D/g, '') === digits);
   if (!convo) return null;
   list.splice(list.indexOf(convo), 1);
   convo.messages = [
@@ -190,8 +190,8 @@ export const addReplyToConversation = (inbox, phone, text) => {
 
 /**
  * Send a template inside an existing conversation (e.g. to restart an expired
- * 24-hour window). WhatsApp allows one template, so the conversation then
- * waits for the customer's reply before anything else can be sent.
+ * 24-hour window). The conversation stays template-only until the customer
+ * replies, but more templates can be sent.
  */
 export const sendTemplateInConversation = (inbox, conversationId, template, values) => {
   const list = CHANNEL_CHATS[inbox];
@@ -204,16 +204,8 @@ export const sendTemplateInConversation = (inbox, conversationId, template, valu
   ];
   convo.preview = `Template: ${template?.name || 'WhatsApp template'}`;
   convo.date = 'Now';
-  convo.awaitingReply = true;
   list.unshift(convo);
   chatsVersion += 1;
   listeners.forEach((l) => l());
 };
 
-// The conversation with `phone` in `inbox` that is waiting on a reply to a template, if any.
-export const findAwaitingTemplateConversation = (inbox, phone) => {
-  const digits = phone.replace(/\D/g, '');
-  return (CHANNEL_CHATS[inbox] || []).find(
-    (c) => c.awaitingReply && c.phone.replace(/\D/g, '') === digits
-  );
-};

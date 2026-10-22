@@ -136,24 +136,6 @@ function TwentyFourHourBlock({ onChooseTemplate }) {
   );
 }
 
-// Shown instead of the composer after an outbound template: WhatsApp only lets
-// the agent message again once the customer replies (Figma 1332:27066 layout).
-function AwaitingReplyNotice({ name, phone }) {
-  // "Ella (+1 310-555-0127)" for a saved contact, just the number otherwise.
-  const who = name && name !== phone ? `${name} (${phone})` : phone;
-  return (
-    <div className="awaiting-reply">
-      <div className="awaiting-reply__inner">
-        <p className="awaiting-reply__title">You can reply once {who} responds</p>
-        <p className="awaiting-reply__body">
-          WhatsApp only allows a template to start a conversation. Their reply opens a 24-hour
-          window for free-form messages.
-        </p>
-      </div>
-    </div>
-  );
-}
-
 export default function ChatPanel({ channel = 'whatsapp', conversation, inboxName }) {
   const isWhatsApp = channel === 'whatsapp';
   const baseMessages = conversation?.messages || [];
@@ -375,9 +357,7 @@ export default function ChatPanel({ channel = 'whatsapp', conversation, inboxNam
 
       {conversation?.view !== 'Assigned to Bot' && (
         <div className="chat-panel__composer-wrap" ref={composerWrapRef}>
-          {isWhatsApp && conversation?.awaitingReply ? (
-            <AwaitingReplyNotice name={conversation.name} phone={conversation.phone} />
-          ) : isBlocked ? (
+          {isBlocked ? (
             <TwentyFourHourBlock onChooseTemplate={openTemplateModal} />
           ) : (
             <div className="chat-composer">

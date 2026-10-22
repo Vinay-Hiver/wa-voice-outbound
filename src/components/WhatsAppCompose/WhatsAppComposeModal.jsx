@@ -2,11 +2,19 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import TemplateModal from '../TemplateModal/TemplateModal';
 import TemplatePickerPopover from '../TemplateModal/TemplatePickerPopover';
-import { WA_CONTACTS, COUNTRIES, DEFAULT_COUNTRY, FROM_SENDERS, hasOngoingConversation } from './data';
+import {
+  WA_CONTACTS,
+  COUNTRIES,
+  DEFAULT_COUNTRY,
+  FROM_SENDERS,
+  hasOngoingConversation,
+  hasExpiredWindow,
+  findExpiredConversation,
+} from './data';
 import {
   addPendingMessage,
   addReplyToConversation,
-  findAwaitingTemplateConversation,
+  sendTemplateInConversation,
 } from '../../data/channelChats';
 import './WhatsAppComposeModal.css';
 
@@ -204,6 +212,14 @@ export default function WhatsAppComposeModal({ open, onClose, onSent, defaultInb
   };
 
   const sendTemplate = (template, values) => {
+    // Ongoing conversation with a closed 24-hour window: the template goes
+    // into that same conversation instead of starting a new one in Pending.
+    const expired = findExpiredConversation(recipient.number, fromInbox);
+    if (expired) {
+      sendTemplateInConversation(fromInbox, expired.id, template, values);
+      onSent?.(fromInbox, expired.view);
+      return;
+    }
     addPendingMessage(
       fromInbox,
       { name: recipient.name, phone: formatPhone(recipient), color: recipient.color },
@@ -232,14 +248,7 @@ export default function WhatsAppComposeModal({ open, onClose, onSent, defaultInb
   );
 
   const ongoing = recipient && hasOngoingConversation(recipient.number, fromInbox);
-  // WhatsApp allows one template per conversation until the customer replies.
-  const templateAlreadySent =
-    recipient && !!findAwaitingTemplateConversation(fromInbox, formatPhone(recipient));
-  const recipientLabel = recipient
-    ? recipient.name
-      ? `${recipient.name} (${formatPhone(recipient)})`
-      : formatPhone(recipient)
-    : '';
+  const windowExpired = recipient && !ongoing && hasExpiredWindow(recipient.number, fromInbox);
 
   let body;
   if (!recipient) {
@@ -253,21 +262,6 @@ export default function WhatsAppComposeModal({ open, onClose, onSent, defaultInb
           <p className="wa-compose__empty-subtitle">
             Choose a contact or enter
             <br />a phone number above
-          </p>
-        </div>
-      </div>
-    );
-  } else if (templateAlreadySent) {
-    body = (
-      <div className="wa-compose__empty">
-        <div className="wa-compose__empty-icon">
-          <img src={templateEmptyIcon} alt="" width="24" height="24" />
-        </div>
-        <div className="wa-compose__empty-text">
-          <p className="wa-compose__empty-title">Template already sent</p>
-          <p className="wa-compose__empty-subtitle">
-            You’ve already sent a template to {recipientLabel}. You can message them again once
-            they respond.
           </p>
         </div>
       </div>
@@ -318,12 +312,25 @@ export default function WhatsAppComposeModal({ open, onClose, onSent, defaultInb
           <img src={templateEmptyIcon} alt="" width="24" height="24" />
         </div>
         <div className="wa-compose__empty-text">
-          <p className="wa-compose__empty-title">Start with a template</p>
-          <p className="wa-compose__empty-subtitle">
-            Choose a template to start. You can reply
-            <br />
-            freely once the customer responds.
-          </p>
+          {windowExpired ? (
+            <>
+              <p className="wa-compose__empty-title">24-hour reply window has closed</p>
+              <p className="wa-compose__empty-subtitle">
+                Send a template to restart this conversation.
+                <br />
+                You can reply freely once the customer responds.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="wa-compose__empty-title">Start with a template</p>
+              <p className="wa-compose__empty-subtitle">
+                Choose a template to start. You can reply
+                <br />
+                freely once the customer responds.
+              </p>
+            </>
+          )}
         </div>
         <button type="button" className="wa-compose__template-btn" onClick={() => setTemplateOpen(true)}>
           <img src={templateBtnIcon} alt="" width="16" height="16" />

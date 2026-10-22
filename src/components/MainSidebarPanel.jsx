@@ -5,7 +5,7 @@ import VoiceInboxPickerModal from './VoiceCall/VoiceInboxPickerModal';
 import VoiceCallComposer from './VoiceCall/VoiceCallComposer';
 import OutgoingCallStrip from './VoiceCall/OutgoingCallStrip';
 import DialpadCard from './DialpadCti/DialpadCard';
-import { HIVER_VOICE_INBOXES } from './VoiceCall/data';
+import { VOICE_INBOXES } from './VoiceCall/data';
 import {
   startOutgoingCall,
   connectCall,
@@ -194,16 +194,13 @@ const MainSidebarPanel = ({ activeFilter, onFilterChange, activeRole, onOpenSear
   const [activeCall, setActiveCall] = React.useState(null); // { id, name, number }
   useVoiceCallsVersion(); // strip state + Mine counts follow the call store
 
-  // Call → close the dialer, log the call in that inbox's Mine view, open it,
-  // and show the outgoing call strip. The callee "picks up" after 4s.
+  // Call → close the dialer, log the call in that inbox's Mine view (without
+  // navigating there) and show the outgoing call strip. The callee "picks up" after 4s.
   const handleStartCall = (fromInbox, person) => {
     setVoiceInbox(null);
     const call = { name: person.name || '', number: person.phone };
     const id = startOutgoingCall(fromInbox.name, call);
     setActiveCall({ id, ...call });
-    setAllViewsInbox(null);
-    setExpandedInboxes((prev) => ({ ...prev, [`voice-${slugifyInbox(fromInbox.name)}`]: true }));
-    onFilterChange({ inbox: fromInbox.name, type: 'Mine', isVoiceInbox: true });
     setTimeout(() => {
       if (getCallStatus(id) === 'ringing') connectCall(id);
     }, 4000);
@@ -567,7 +564,7 @@ const MainSidebarPanel = ({ activeFilter, onFilterChange, activeRole, onOpenSear
           })}
 
           {/* Voice inboxes sit with the other shared inboxes, after WhatsApp. */}
-          {HIVER_VOICE_INBOXES.map(({ id, name }) => {
+          {VOICE_INBOXES.map(({ id, name }) => {
             const key = `voice-${slugifyInbox(name)}`;
             return (
               <React.Fragment key={id}>

@@ -2,13 +2,22 @@ import { CHANNEL_BY_INBOX, CHANNEL_CHATS } from '../../data/channelChats';
 
 // Dummy data for the outbound WhatsApp composer.
 
-// Contacts = everyone who already has a conversation in a WhatsApp inbox.
+// Everyone who already has a conversation in a WhatsApp inbox (used by the voice dialer).
 const WHATSAPP_INBOXES = Object.keys(CHANNEL_BY_INBOX).filter((i) => CHANNEL_BY_INBOX[i] === 'whatsapp');
 const digits = (phone) => phone.replace(/\D/g, '');
 
-export const WA_CONTACTS = WHATSAPP_INBOXES.flatMap((inbox) => CHANNEL_CHATS[inbox])
+export const ALL_CONTACTS = WHATSAPP_INBOXES.flatMap((inbox) => CHANNEL_CHATS[inbox])
   .filter((c, i, all) => all.findIndex((o) => digits(o.phone) === digits(c.phone)) === i)
   .map((c) => ({ name: c.name, phone: c.phone, color: c.avatarColor }));
+
+const contactNamed = (name) => ALL_CONTACTS.find((c) => c.name === name);
+
+// The WhatsApp composer demos one contact per case (from WhatsApp 01):
+export const WA_CONTACTS = [
+  contactNamed('Marcus Lee'), // ongoing conversation → reply box
+  { name: 'Olivia Bennett', phone: '+1 646-555-0182', color: 'var(--pastelGreenSurfaceDefault)' }, // new → template
+  contactNamed('Priya Nair'), // ongoing, but its 24-hour window has expired → template
+];
 
 // WhatsApp numbers the agent can send from — one per WhatsApp inbox.
 export const FROM_SENDERS = [
@@ -62,8 +71,19 @@ export const DEFAULT_COUNTRY = COUNTRIES.find((c) => c.name === 'United States')
 // A number has an ongoing conversation in `inbox` when it has an open (not
 // Closed) conversation there whose 24-hour window is still open. Those skip
 // the template step and reply in that thread.
+const conversationsWith = (number, inbox) =>
+  (CHANNEL_CHATS[inbox] || []).filter(
+    (c) => digits(c.phone).endsWith(digits(number)) && digits(number).length >= 7 && c.view !== 'Closed'
+  );
+
+// The open conversation whose 24-hour window has expired (templates only), if any.
+export const findExpiredConversation = (number, inbox) =>
+  conversationsWith(number, inbox).find((c) => c.blocked);
+
+export const hasExpiredWindow = (number, inbox) => !!findExpiredConversation(number, inbox);
+
 export const hasOngoingConversation = (number, inbox) =>
   (CHANNEL_CHATS[inbox] || []).some(
     (c) => digits(c.phone).endsWith(digits(number)) && digits(number).length >= 7
-      && c.view !== 'Closed' && !c.blocked && !c.awaitingReply
+      && c.view !== 'Closed' && !c.blocked
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { WA_CONTACTS, COUNTRIES, DEFAULT_COUNTRY } from '../WhatsAppCompose/data';
+import { ALL_CONTACTS, COUNTRIES, DEFAULT_COUNTRY } from '../WhatsAppCompose/data';
 import { HIVER_VOICE_INBOXES } from './data';
 // Shares the bottom-right composer shell with the WhatsApp composer.
 import '../WhatsAppCompose/WhatsAppComposeModal.css';
@@ -79,7 +79,7 @@ export default function VoiceCallComposer({ open, inbox, onClose, onCall }) {
   const q = trimmed.toLowerCase();
   const filteredContacts = phoneQuery
     ? []
-    : WA_CONTACTS.filter((c) => !q || c.name.toLowerCase().includes(q));
+    : ALL_CONTACTS.filter((c) => !q || c.name.toLowerCase().includes(q));
   const showSuggestions = toFocused && !callee && (phoneQuery || filteredContacts.length > 0);
 
   const choose = (person) => {
