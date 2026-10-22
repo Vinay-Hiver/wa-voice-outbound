@@ -14,7 +14,6 @@ import clearIcon from '../../assets/icons/voice-call/clear-14.svg';
 import emptyCallIcon from '../../assets/icons/voice-call/empty-call.svg';
 import rowCallIcon from '../../assets/icons/voice-call/row-call.svg';
 import callBtnIcon from '../../assets/icons/voice-call/call-btn.svg';
-import onlineDot from '../../assets/icons/voice-call/online.svg';
 import chevronDown16 from '../../assets/icons/wa-compose/chevron-down-16.svg';
 import searchIcon from '../../assets/icons/wa-compose/search.svg';
 
@@ -253,7 +252,6 @@ export default function VoiceCallComposer({ open, inbox, onClose, onCall }) {
                   {callee.name ? (
                     <span className="wa-compose__avatar voice-call__callee-avatar" style={{ background: callee.color }}>
                       {callee.name[0]}
-                      <img className="wa-compose__avatar-online" src={onlineDot} alt="" width="8" height="8" />
                     </span>
                   ) : (
                     // Unknown number — no avatar, so show the call glyph instead.
@@ -330,7 +328,6 @@ export default function VoiceCallComposer({ open, inbox, onClose, onCall }) {
                     <button type="button" className="wa-compose__dropdown-item" onClick={() => choose(c)}>
                       <span className="wa-compose__avatar" style={{ background: c.color }}>
                         {c.name[0]}
-                        <img className="wa-compose__avatar-online" src={onlineDot} alt="" width="8" height="8" />
                       </span>
                       {c.name} ({c.phone})
                     </button>

@@ -28,7 +28,6 @@ import emptyWhatsappIcon from '../../assets/icons/wa-compose/empty-whatsapp.svg'
 import templateEmptyIcon from '../../assets/icons/wa-compose/template-empty.svg';
 import templateBtnIcon from '../../assets/icons/wa-compose/template-btn.svg';
 import searchIcon from '../../assets/icons/wa-compose/search.svg';
-import onlineDot from '../../assets/icons/wa-compose/online.svg';
 import footerEmojiIcon from '../../assets/icons/wa-compose/footer-emoji.svg';
 import footerAttachIcon from '../../assets/icons/wa-compose/footer-attach.svg';
 import footerTemplateIcon from '../../assets/icons/wa-compose/footer-template.svg';
@@ -484,7 +483,6 @@ export default function WhatsAppComposeModal({ open, onClose, onSent, defaultInb
                     >
                       <span className="wa-compose__avatar" style={{ background: c.color }}>
                         {c.name[0]}
-                        <img className="wa-compose__avatar-online" src={onlineDot} alt="" width="8" height="8" />
                       </span>
                       {c.name} ({c.phone})
                     </button>

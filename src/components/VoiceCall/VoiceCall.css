@@ -255,10 +255,6 @@
   line-height: var(--label-small-line-height);
 }
 
-.voice-call__callee-avatar .wa-compose__avatar-online {
-  left: 24px;
-  top: 24px;
-}
 
 .voice-call__unknown-icon {
   margin-bottom: 12px;

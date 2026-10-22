@@ -129,10 +129,6 @@
   display: inline-flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: 500; flex-shrink: 0;
 }
-.rp-avatar__online {
-  position: absolute; right: -1px; bottom: -1px; width: 7.5px; height: 7.5px;
-  border-radius: 50%; background: var(--green-500, #2dbb6d); border: 1.5px solid #fff;
-}
 
 .rp-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .rp-chip {

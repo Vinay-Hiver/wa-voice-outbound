@@ -529,11 +529,6 @@
   color: var(--slateSurfaceWhite);
 }
 
-.wa-compose__avatar-online {
-  position: absolute;
-  left: 16px;
-  top: 16px;
-}
 
 /* Country picker (Figma 1322:21283) */
 .wa-compose__country-picker {

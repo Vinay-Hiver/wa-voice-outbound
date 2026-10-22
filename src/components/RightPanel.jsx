@@ -98,7 +98,6 @@ function Avatar({ name, color, size = 18 }) {
   return (
     <span className="rp-avatar" style={{ background: color, width: size, height: size }}>
       {name.trim().charAt(0).toUpperCase()}
-      <span className="rp-avatar__online" />
     </span>
   );
 }
@@ -421,7 +420,7 @@ export default function RightPanel({ inboxName = 'Email Inbox Name', channel = '
           {[1, 2].map((i) => (
             <div className="rp-prev" key={i}>
               <div className="rp-prev__head">
-                <span className="rp-avatar" style={{ background: '#8b7fd4' }}>F<span className="rp-avatar__online" /></span>
+                <span className="rp-avatar" style={{ background: '#8b7fd4' }}>F</span>
                 <span className="rp-prev__name">frosty-wildflower-332</span>
                 <span className="rp-prev__time">May 19, {i === 1 ? '05:29' : '05:21'} PM</span>
               </div>
@@ -478,7 +477,7 @@ export default function RightPanel({ inboxName = 'Email Inbox Name', channel = '
           {[1, 2].map((i) => (
             <div className="rp-prev" key={i}>
               <div className="rp-prev__head">
-                <span className="rp-avatar" style={{ background: '#8b7fd4' }}>F<span className="rp-avatar__online" /></span>
+                <span className="rp-avatar" style={{ background: '#8b7fd4' }}>F</span>
                 <span className="rp-prev__name">frosty-wildflower-332</span>
                 <span className="rp-prev__time">May 19, {i === 1 ? '05:29' : '05:21'} PM</span>
               </div>
