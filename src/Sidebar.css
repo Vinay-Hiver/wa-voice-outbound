@@ -334,6 +334,12 @@
   padding: 0 8px 8px; /* Alignment with x=8 in metadata */
 }
 
+/* Lets the Dialpad CTI card (margin-top: auto) sit at the bottom. */
+.sidebar-content--with-dialpad {
+  display: flex;
+  flex-direction: column;
+}
+
 .side-nav-expanded .section-title {
   padding: 20px 8px 8px;
   font-size: 13px;

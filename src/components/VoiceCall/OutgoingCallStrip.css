@@ -1,0 +1,253 @@
+/* Ported from VinaySC/voice-channel src/components/IncomingCallStrip.css */
+.incoming-call-strip-container {
+  padding: 10px;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 95;
+  pointer-events: none; /* Let clicks pass through padding to content behind if any, but the strip itself needs clicks */
+  animation: slideIn 300ms ease-out forwards;
+}
+
+.incoming-call-strip-container.exiting {
+  animation: slideOut 150ms ease-in forwards;
+}
+
+.incoming-call-strip-container.no-animation {
+  animation: none;
+  transform: translateY(0);
+}
+
+@keyframes slideIn {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slideOut {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+
+.incoming-call-strip {
+  pointer-events: auto; /* Enable clicks on the strip itself */
+  background-color: var(--slateTextBody, #334155);
+  border-radius: 8px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  width: 100%;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.profile-details {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 300px;
+}
+
+.avatar-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-name {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--slateTextCaption, #cbd5e1);
+}
+
+.call-info-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.call-info-badge {
+  background-color: var(--slateTextTitle, #0f172a);
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 20px;
+}
+
+.call-icon-animated {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  height: 16px; /* Match icon size */
+  width: 16px;
+}
+
+.call-status, .call-timer {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--slateTextCaption, #cbd5e1);
+}
+
+.call-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 300px;
+}
+
+.btn-accept, .btn-reject, .btn-cancel {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  transition: opacity 0.2s;
+}
+
+.btn-accept:hover, .btn-reject:hover, .btn-cancel:hover {
+  opacity: 0.9;
+}
+
+.btn-accept {
+  background-color: var(--successTextSubtle, #2dbb6d);
+}
+
+.btn-reject, .btn-cancel {
+  background-color: var(--errorSurfaceDisabled, #eb5c5c);
+}
+
+.connected-pill {
+  background-color: var(--successBorderDark, #2dbb6d);
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 20px;
+}
+
+.connected-status, .connected-timer {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+}
+
+.connected-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  width: 300px;
+}
+
+.icon-btn-action {
+  width: 16px;
+  height: 16px;
+  background-color: transparent;
+  border: none;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+/* Removed hover state as requested */
+
+.btn-end-call {
+  width: 32px;
+  height: 32px;
+  background-color: var(--errorSurfaceDisabled, #eb5c5c);
+  border: none;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-end-call:hover {
+  opacity: 0.9;
+}
+
+.action-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.call-action-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.call-action-item .tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 10px;
+  background-color: #334155;
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.1s, visibility 0.1s;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.call-action-item:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Replaces framer-motion's 150ms cross-fade between states. */
+.call-strip-fade {
+  animation: callStripFade 150ms ease-out;
+}
+
+@keyframes callStripFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Replaces the @animateicons ringing animation (repeats every 2s). */
+.call-icon-ringing {
+  transform-origin: 50% 50%;
+  animation: callIconRing 2s ease-in-out infinite;
+}
+
+@keyframes callIconRing {
+  0%, 40%, 100% { transform: rotate(0deg); }
+  5%, 15%, 25% { transform: rotate(-12deg); }
+  10%, 20%, 30% { transform: rotate(12deg); }
+}

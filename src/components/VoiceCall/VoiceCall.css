@@ -1,0 +1,270 @@
+/* ── "Choose a Voice inbox to call from" (Figma 2378:6254) ── */
+.voice-inbox-picker__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.voice-inbox-picker {
+  width: 500px;
+  max-width: calc(100vw - 32px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  background: var(--slateSurfaceSlate150);
+  font-family: var(--font-family);
+  overflow: hidden;
+}
+
+.voice-inbox-picker__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+}
+
+.voice-inbox-picker__header h2 {
+  margin: 0;
+  font-size: var(--label-medium-size);
+  line-height: var(--label-medium-line-height);
+  font-weight: var(--label-medium-weight);
+  color: var(--slateTextBody);
+}
+
+.voice-inbox-picker__close {
+  width: 28px;
+  height: 28px;
+  margin-right: -7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.voice-inbox-picker__close:hover {
+  background: var(--slateSurfaceSubtle200);
+}
+
+.voice-inbox-picker__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  border-radius: 12px;
+  background: var(--slateSurfaceWhite);
+}
+
+.voice-inbox-picker__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 15px 13px 13px;
+  border: 1px solid var(--slateBorderMild);
+  border-radius: 8px;
+  background: var(--slateSurfaceWhite);
+  font-family: var(--font-family);
+  text-align: left;
+  cursor: pointer;
+}
+
+.voice-inbox-picker__row:hover {
+  background: var(--slateSurfaceSubtle);
+  border-color: var(--slateBorderLight);
+}
+
+.voice-inbox-picker__row-icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50px;
+  background: var(--slateSurfaceSubtle100-hover);
+}
+
+.voice-inbox-picker__row-label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.voice-inbox-picker__row-name {
+  font-size: var(--label-small-size);
+  line-height: var(--label-small-line-height);
+  font-weight: var(--label-small-weight);
+  color: var(--slateTextTitle);
+}
+
+.voice-inbox-picker__row-number {
+  font-size: var(--body-xsmall-size);
+  line-height: var(--body-xsmall-line-height);
+  color: var(--slateTextSubtle);
+}
+
+.voice-inbox-picker__chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: var(--body-xsmall-size);
+  line-height: var(--body-xsmall-line-height);
+  color: var(--slateTextBody);
+}
+
+.voice-inbox-picker__chip-logo {
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Crop the Hiver mark out of the wide logo sprite (as in Figma). */
+.voice-inbox-picker__hiver-logo {
+  position: relative;
+  width: 10.889px;
+  height: 12.43px;
+  overflow: hidden;
+}
+
+.voice-inbox-picker__hiver-logo img {
+  position: absolute;
+  top: 0;
+  left: -0.2%;
+  width: 283.02%;
+  height: 99.6%;
+  max-width: none;
+}
+
+.voice-inbox-picker__dialpad-logo {
+  width: 10.889px;
+  height: 10.889px;
+  object-fit: cover;
+}
+
+/* ── "New Voice call" composer (Figma 2380:19464) — extends .wa-compose ── */
+.wa-compose__from.voice-call__from {
+  background: var(--slateSurfaceDisabled);
+}
+
+.voice-call__to-value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--body-small-size);
+  color: var(--slateTextBody);
+}
+
+.voice-call__dropdown {
+  padding: 4px;
+}
+
+.voice-call__contact-row {
+  position: relative;
+  display: flex;
+}
+
+.voice-call__contact-row .wa-compose__dropdown-item {
+  flex: 1;
+  padding-right: 40px;
+}
+
+.voice-call__row-call {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: var(--primarySurfaceDefault);
+  cursor: pointer;
+}
+
+.voice-call__contact-row:hover .voice-call__row-call {
+  display: flex;
+}
+
+.voice-call__contact-row:hover .wa-compose__dropdown-item {
+  background: var(--slateSurfaceSubtle100-hover);
+}
+
+.voice-call__row-call:hover {
+  background: var(--primarySurfaceMildDark);
+}
+
+.voice-call__callee {
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.voice-call__callee-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.voice-call__unknown-icon {
+  margin-bottom: 12px;
+}
+
+.voice-call__callee-name {
+  margin: 0;
+  font-size: var(--label-medium-size);
+  line-height: var(--label-medium-line-height);
+  font-weight: var(--label-medium-weight);
+  color: var(--slateTextBody);
+}
+
+.voice-call__callee-number {
+  margin: 0;
+  font-size: var(--body-xsmall-size);
+  line-height: var(--body-xsmall-line-height);
+  color: var(--slateTextBody);
+}
+
+.voice-call__call-btn {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--primarySurfaceDefault);
+  font-family: var(--font-family);
+  font-size: var(--label-small-size);
+  line-height: var(--label-small-line-height);
+  font-weight: var(--label-small-weight);
+  color: var(--slateSurfaceWhite);
+  cursor: pointer;
+}
+
+.voice-call__call-btn:hover {
+  background: var(--primarySurfaceMildDark);
+}

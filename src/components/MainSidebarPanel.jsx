@@ -1,6 +1,20 @@
 import React from 'react';
 import AllViewsPanel from './AllViewsPanel';
 import WhatsAppComposeModal from './WhatsAppCompose/WhatsAppComposeModal';
+import VoiceInboxPickerModal from './VoiceCall/VoiceInboxPickerModal';
+import VoiceCallComposer from './VoiceCall/VoiceCallComposer';
+import OutgoingCallStrip from './VoiceCall/OutgoingCallStrip';
+import DialpadCard from './DialpadCti/DialpadCard';
+import { HIVER_VOICE_INBOXES } from './VoiceCall/data';
+import {
+  startOutgoingCall,
+  connectCall,
+  endCall,
+  getCallStatus,
+  getVoiceCalls,
+  useVoiceCallsVersion,
+} from '../data/voiceCalls';
+import voiceInboxIcon from '../assets/icons/voice-inbox/voice-inbox.svg';
 import { ViewTypeIcon, TeamFavRowIcon } from './viewIcons';
 import { INITIAL_VIEWS_BY_INBOX, MAX_FAVOURITES } from '../data/dummyViews';
 import { channelViewCount, channelInboxTotal, isCountedView, useChannelChatsVersion } from '../data/channelChats';
@@ -174,9 +188,55 @@ const MainSidebarPanel = ({ activeFilter, onFilterChange, activeRole, onOpenSear
     onFilterChange({ inbox, type: view });
   };
 
+  // Voice: pick an inbox first; Hiver inboxes open the bottom-right dialer.
+  const [voicePickerOpen, setVoicePickerOpen] = React.useState(false);
+  const [voiceInbox, setVoiceInbox] = React.useState(null);
+  const [activeCall, setActiveCall] = React.useState(null); // { id, name, number }
+  useVoiceCallsVersion(); // strip state + Mine counts follow the call store
+
+  // Call → close the dialer, log the call in that inbox's Mine view, open it,
+  // and show the outgoing call strip. The callee "picks up" after 4s.
+  const handleStartCall = (fromInbox, person) => {
+    setVoiceInbox(null);
+    const call = { name: person.name || '', number: person.phone };
+    const id = startOutgoingCall(fromInbox.name, call);
+    setActiveCall({ id, ...call });
+    setAllViewsInbox(null);
+    setExpandedInboxes((prev) => ({ ...prev, [`voice-${slugifyInbox(fromInbox.name)}`]: true }));
+    onFilterChange({ inbox: fromInbox.name, type: 'Mine', isVoiceInbox: true });
+    setTimeout(() => {
+      if (getCallStatus(id) === 'ringing') connectCall(id);
+    }, 4000);
+  };
+
+  // The strip goes away once its call ends (from the strip or the call detail).
+  const activeCallStatus = activeCall ? getCallStatus(activeCall.id) : null;
+  React.useEffect(() => {
+    if (activeCallStatus === 'ended') setActiveCall(null);
+  }, [activeCallStatus]);
+
+  // The Dialpad CTI card is always in the sidebar (collapsed). Picking a
+  // Dialpad inbox expands it; a new key per pick re-expands it even if the
+  // agent collapsed it in between.
+  const [dialpadKey, setDialpadKey] = React.useState(null);
+
+  const handleVoiceInboxSelect = (inbox) => {
+    setVoicePickerOpen(false);
+    if (inbox.provider === 'hiver') setVoiceInbox(inbox);
+    else setDialpadKey(Date.now());
+  };
+
+  // Only one bottom-right composer at a time.
   const handleNewConvoOption = (key) => {
     setNewConvoOpen(false);
-    if (key === 'whatsapp') setWaComposeOpen(true);
+    if (key === 'whatsapp') {
+      setVoiceInbox(null);
+      setWaComposeOpen(true);
+    }
+    if (key === 'call') {
+      setWaComposeOpen(false);
+      setVoicePickerOpen(true);
+    }
   };
 
   React.useEffect(() => {
@@ -311,6 +371,42 @@ const MainSidebarPanel = ({ activeFilter, onFilterChange, activeRole, onOpenSear
     return <span className="item-icon"><ViewTypeIcon icon={icon} /></span>;
   };
 
+  // Voice inboxes — nav items as in VinaySC/voice-channel's MainSidebarPanel.
+  const VOICE_SUBMENU = [
+    { type: 'Unassigned', icon: 'unassigned' },
+    { type: 'Mine', icon: 'mine' },
+    { type: 'All assigned', icon: 'team' },
+    { type: 'Tags', icon: 'tags' },
+    { type: 'Closed', icon: 'closed' },
+  ];
+
+  const toggleVoiceInbox = (name) => {
+    const key = `voice-${slugifyInbox(name)}`;
+    const willExpand = !expandedInboxes[key];
+    setExpandedInboxes((prev) => ({ ...prev, [key]: willExpand }));
+    if (willExpand) onFilterChange({ inbox: name, type: 'Unassigned', isVoiceInbox: true });
+  };
+
+  const renderVoiceSubmenu = (inboxName) => (
+    <div className="nav-group-nested">
+      {VOICE_SUBMENU.map((item) => (
+        <div
+          key={item.type}
+          className={`nav-item ${activeFilter.inbox === inboxName && activeFilter.type === item.type ? 'active' : ''}`}
+          onClick={() => onFilterChange({ inbox: inboxName, type: item.type, isVoiceInbox: true })}
+        >
+          <div className="nav-content">
+            {submenuIcon(item.icon)}
+            <span>{item.type}</span>
+          </div>
+          {item.type === 'Mine' && getVoiceCalls(inboxName).length > 0 && (
+            <div className="nav-item-meta"><span className="count">{getVoiceCalls(inboxName).length}</span></div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+
   const renderChannelSubmenu = (inboxName, channel) => {
     const items = CHANNEL_SUBMENUS[channel] || [];
     return (
@@ -406,6 +502,25 @@ const MainSidebarPanel = ({ activeFilter, onFilterChange, activeRole, onOpenSear
               onClose={() => setWaComposeOpen(false)}
               onSent={handleWhatsAppSent}
             />
+            <VoiceInboxPickerModal
+              open={voicePickerOpen}
+              onClose={() => setVoicePickerOpen(false)}
+              onSelect={handleVoiceInboxSelect}
+            />
+            <VoiceCallComposer
+              open={!!voiceInbox}
+              inbox={voiceInbox}
+              onClose={() => setVoiceInbox(null)}
+              onCall={handleStartCall}
+            />
+            {activeCall && (
+              <OutgoingCallStrip
+                contactName={activeCall.name}
+                contactNumber={activeCall.number}
+                isAccepted={activeCallStatus === 'active'}
+                onEnd={() => endCall(activeCall.id)}
+              />
+            )}
           </div>
         </div>
         <div className="search-container">
@@ -416,7 +531,7 @@ const MainSidebarPanel = ({ activeFilter, onFilterChange, activeRole, onOpenSear
         </div>
       </div>
 
-      <div className="sidebar-content">
+      <div className="sidebar-content sidebar-content--with-dialpad">
         <div className="section-title">Shared Inbox</div>
         
         <div className="nav-group">
@@ -450,6 +565,32 @@ const MainSidebarPanel = ({ activeFilter, onFilterChange, activeRole, onOpenSear
               </React.Fragment>
             );
           })}
+
+          {/* Voice inboxes sit with the other shared inboxes, after WhatsApp. */}
+          {HIVER_VOICE_INBOXES.map(({ id, name }) => {
+            const key = `voice-${slugifyInbox(name)}`;
+            return (
+              <React.Fragment key={id}>
+                <div
+                  className={`nav-item accordion-trigger ${expandedInboxes[key] ? 'expanded' : ''}`}
+                  onClick={() => toggleVoiceInbox(name)}
+                >
+                  <div className="nav-content">
+                    <img src={voiceInboxIcon} alt="" width="16" height="16" className="item-icon" />
+                    <span>{name}</span>
+                  </div>
+                  <div className="accordion-meta">
+                    <img
+                      src={sChevronDown}
+                      alt=""
+                      className={`chevron-icon ${expandedInboxes[key] ? 'up' : ''}`}
+                    />
+                  </div>
+                </div>
+                <NestedGroup expanded={expandedInboxes[key]}>{renderVoiceSubmenu(name)}</NestedGroup>
+              </React.Fragment>
+            );
+          })}
         </div>
 
         <div className="section-title margin-top">More</div>
@@ -477,6 +618,8 @@ const MainSidebarPanel = ({ activeFilter, onFilterChange, activeRole, onOpenSear
             </div>
           </div>
         </div>
+
+        <DialpadCard key={dialpadKey || 'default'} dialpadState="outgoing" dialpadExpanded={!!dialpadKey} />
       </div>
     </div>
   );

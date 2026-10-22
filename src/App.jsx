@@ -6,6 +6,7 @@ import ConversationList from './components/ConversationList';
 import ConversationDetail from './components/ConversationDetail';
 import RightPanel from './components/RightPanel';
 import ChannelChatView from './components/ChannelChatView';
+import VoiceInboxView from './components/VoiceInbox/VoiceInboxView';
 import { CHANNEL_BY_INBOX, useChannelChatsVersion } from './data/channelChats';
 import SettingsPage from './pages/SettingsPage';
 import MySettingsPage from './pages/MySettingsPage';
@@ -1126,7 +1127,9 @@ function App() {
               onFilterChange={setActiveFilter}
               activeRole={activeRole}
             />
-            {CHANNEL_BY_INBOX[activeFilter.inbox] ? (
+            {activeFilter.isVoiceInbox ? (
+              <VoiceInboxView inbox={activeFilter.inbox} viewType={activeFilter.type} />
+            ) : CHANNEL_BY_INBOX[activeFilter.inbox] ? (
               <ChannelChatView key={`${activeFilter.inbox}|${activeFilter.type}|${channelChatsVersion}`} inboxName={activeFilter.inbox} viewType={activeFilter.type} />
             ) : (
               <>
