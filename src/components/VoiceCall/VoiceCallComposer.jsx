@@ -91,9 +91,12 @@ export default function VoiceCallComposer({ open, inbox, onClose, onCall }) {
   const trimmed = query.trim();
   const phoneQuery = trimmed && isPhoneLike(trimmed);
   const q = trimmed.toLowerCase();
-  const filteredContacts = phoneQuery
-    ? []
-    : ALL_CONTACTS.filter((c) => !q || c.name.toLowerCase().includes(q));
+  // Names match by text; numbers match any contact whose number contains the
+  // typed digits (e.g. "415" finds Priya, +1 415-555-0110).
+  const queryDigits = trimmed.replace(/\D/g, '');
+  const filteredContacts = ALL_CONTACTS.filter((c) =>
+    phoneQuery ? digitsOf(c.phone).includes(queryDigits) : c.name.toLowerCase().includes(q)
+  );
   // Only while typing — with an empty To field, Recents already lists the contacts.
   const showSuggestions =
     toFocused && !callee && !!trimmed && (phoneQuery || filteredContacts.length > 0);
@@ -364,12 +367,7 @@ export default function VoiceCallComposer({ open, inbox, onClose, onCall }) {
 
           {showSuggestions && (
             <div className="wa-compose__dropdown voice-call__dropdown" onMouseDown={(e) => e.preventDefault()}>
-              {phoneQuery ? (
-                <button type="button" className="wa-compose__dropdown-item" onClick={chooseTypedNumber}>
-                  Call “{trimmed}”
-                </button>
-              ) : (
-                filteredContacts.map((c) => (
+              {filteredContacts.map((c) => (
                   <div key={c.phone} className="voice-call__contact-row">
                     <button type="button" className="wa-compose__dropdown-item" onClick={() => choose(c)}>
                       <span className="wa-compose__avatar" style={{ background: c.color }}>
@@ -387,7 +385,11 @@ export default function VoiceCallComposer({ open, inbox, onClose, onCall }) {
                       <img src={rowCallIcon} alt="" width="14" height="14" />
                     </button>
                   </div>
-                ))
+                ))}
+              {phoneQuery && (
+                <button type="button" className="wa-compose__dropdown-item" onClick={chooseTypedNumber}>
+                  Call “{trimmed}”
+                </button>
               )}
             </div>
           )}

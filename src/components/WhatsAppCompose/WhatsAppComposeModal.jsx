@@ -119,12 +119,17 @@ export default function WhatsAppComposeModal({ open, onClose, onSent, defaultInb
   const trimmed = query.trim();
   const phoneQuery = trimmed && isPhoneLike(trimmed);
   const q = trimmed.toLowerCase();
-  const filteredContacts = phoneQuery
-    ? []
-    : WA_CONTACTS.filter(
-        (c) => !q || c.name.toLowerCase().includes(q) || c.phone.replace(/\s/g, '').includes(q)
-      );
-  const showSuggestions = toFocused && !recipient && (phoneQuery || filteredContacts.length > 0);
+  // Names match by text; numbers match any contact whose number contains the
+  // typed digits (e.g. "415" finds Priya, +1 415-555-0110).
+  const queryDigits = trimmed.replace(/\D/g, '');
+  const filteredContacts = WA_CONTACTS.filter((c) =>
+    phoneQuery
+      ? c.phone.replace(/\D/g, '').includes(queryDigits)
+      : c.name.toLowerCase().includes(q)
+  );
+  // Only while typing — no list is shown for an empty To field.
+  const showSuggestions =
+    toFocused && !recipient && !!trimmed && (phoneQuery || filteredContacts.length > 0);
 
   const selectContact = (contact) => {
     setRecipient({ ...splitNumber(contact.phone), name: contact.name, color: contact.color });
@@ -469,24 +474,23 @@ export default function WhatsAppComposeModal({ open, onClose, onSent, defaultInb
             {showSuggestions && (
               // preventDefault on mousedown keeps focus in the To input while picking.
               <div className="wa-compose__dropdown" onMouseDown={(e) => e.preventDefault()}>
-                {phoneQuery ? (
+                {filteredContacts.map((c) => (
+                  <button
+                    key={c.phone}
+                    type="button"
+                    className="wa-compose__dropdown-item"
+                    onClick={() => selectContact(c)}
+                  >
+                    <span className="wa-compose__avatar" style={{ background: c.color }}>
+                      {c.name[0]}
+                    </span>
+                    {c.name} ({c.phone})
+                  </button>
+                ))}
+                {phoneQuery && (
                   <button type="button" className="wa-compose__dropdown-item" onClick={selectTypedNumber}>
                     Send message to “{trimmed}”
                   </button>
-                ) : (
-                  filteredContacts.map((c) => (
-                    <button
-                      key={c.phone}
-                      type="button"
-                      className="wa-compose__dropdown-item"
-                      onClick={() => selectContact(c)}
-                    >
-                      <span className="wa-compose__avatar" style={{ background: c.color }}>
-                        {c.name[0]}
-                      </span>
-                      {c.name} ({c.phone})
-                    </button>
-                  ))
                 )}
               </div>
             )}
