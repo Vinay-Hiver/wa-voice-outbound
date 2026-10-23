@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { ALL_CONTACTS, COUNTRIES, DEFAULT_COUNTRY } from '../WhatsAppCompose/data';
 import { HIVER_VOICE_INBOXES } from './data';
 import FromSelect from '../WhatsAppCompose/FromSelect';
+import { getVoiceCalls, useVoiceCallsVersion } from '../../data/voiceCalls';
 // Shares the bottom-right composer shell with the WhatsApp composer.
 import '../WhatsAppCompose/WhatsAppComposeModal.css';
 import './VoiceCall.css';
@@ -20,6 +21,29 @@ import searchIcon from '../../assets/icons/wa-compose/search.svg';
 const isPhoneLike = (text) => /^[+\d][\d\s()-]*$/.test(text.trim());
 const senderLabel = (inbox) => `${inbox.number} (${inbox.name})`;
 
+const digitsOf = (phone) => phone.replace(/\D/g, '');
+const RECENTS_LIMIT = 7;
+// Seed history so Recents isn't empty before the agent has placed a call.
+const SEED_RECENTS = ALL_CONTACTS.slice(0, RECENTS_LIMIT);
+
+// Recents for an inbox: calls placed from it this session (newest first),
+// then the seed history, one row per number.
+const recentsFor = (inboxName) => {
+  const placed = getVoiceCalls(inboxName).map((call) => {
+    const contact = ALL_CONTACTS.find((c) => digitsOf(c.phone) === digitsOf(call.number));
+    return contact || { name: call.name, phone: call.number };
+  });
+  const seen = new Set();
+  return [...placed, ...SEED_RECENTS]
+    .filter((p) => {
+      const key = digitsOf(p.phone);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, RECENTS_LIMIT);
+};
+
 // Typed numbers carry a country + local number; contacts carry a full phone.
 const calleePhone = (callee) =>
   callee.typed ? `${callee.country.dial} ${callee.number}` : callee.phone;
@@ -29,6 +53,7 @@ const calleePhone = (callee) =>
  * (Figma 2380:19464): empty → pick contact / type number → Call.
  */
 export default function VoiceCallComposer({ open, inbox, onClose, onCall }) {
+  useVoiceCallsVersion(); // Recents update as calls are placed
   const [minimised, setMinimised] = React.useState(false);
   const [fromId, setFromId] = React.useState(inbox?.id);
   const [query, setQuery] = React.useState('');
@@ -69,7 +94,9 @@ export default function VoiceCallComposer({ open, inbox, onClose, onCall }) {
   const filteredContacts = phoneQuery
     ? []
     : ALL_CONTACTS.filter((c) => !q || c.name.toLowerCase().includes(q));
-  const showSuggestions = toFocused && !callee && (phoneQuery || filteredContacts.length > 0);
+  // Only while typing — with an empty To field, Recents already lists the contacts.
+  const showSuggestions =
+    toFocused && !callee && !!trimmed && (phoneQuery || filteredContacts.length > 0);
 
   const choose = (person) => {
     setCallee(person);
@@ -268,16 +295,35 @@ export default function VoiceCallComposer({ open, inbox, onClose, onCall }) {
                 </button>
               </div>
             ) : (
-              <div className="wa-compose__empty">
-                <div className="wa-compose__empty-icon">
-                  <img src={emptyCallIcon} alt="" width="24" height="24" />
-                </div>
-                <div className="wa-compose__empty-text">
-                  <p className="wa-compose__empty-title">Start a new call</p>
-                  <p className="wa-compose__empty-subtitle">
-                    Choose a contact or enter
-                    <br />a phone number above
-                  </p>
+              // Recent calls (Figma 2391:2238): click a row to pick it, or the
+              // call button (shown on hover) to call straight away.
+              <div className="voice-call__recents">
+                <p className="voice-call__recents-title">Recents</p>
+                <div className="voice-call__recents-list">
+                  {recentsFor(fromInbox.name).map((p) => (
+                    <div key={p.phone} className="voice-call__recent-row" onClick={() => choose(p)}>
+                      <span
+                        className="wa-compose__avatar"
+                        style={{ background: p.color || 'var(--slateSurfaceDefault)' }}
+                      >
+                        {p.name ? p.name[0] : '#'}
+                      </span>
+                      <span className="voice-call__recent-label">
+                        {p.name ? `${p.name} (${p.phone})` : p.phone}
+                      </span>
+                      <button
+                        type="button"
+                        className="voice-call__row-call"
+                        title={`Call ${p.name || p.phone}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startCall(p);
+                        }}
+                      >
+                        <img src={rowCallIcon} alt="" width="14" height="14" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
